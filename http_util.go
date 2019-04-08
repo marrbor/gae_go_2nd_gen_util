@@ -35,17 +35,19 @@ func OK(w http.ResponseWriter) {
 
 // JSONResponse は、200 OKで JSON オブジェクトを返します。
 func JSONResponse(w http.ResponseWriter, data interface{}) {
-	if data != nil {
-		j, err := json.Marshal(data)
-		if err != nil {
-			InternalServerError(w, err)
-			return
-		}
-
-		// レスポンスを返す
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(j)
+	if data == nil {
+		OK(w)
+		return
 	}
+	j, err := json.Marshal(data)
+	if err != nil {
+		InternalServerError(w, err)
+		return
+	}
+
+	// レスポンスを返す
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
 }
 
 // エラーを返す

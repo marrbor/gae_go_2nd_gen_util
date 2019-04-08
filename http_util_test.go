@@ -99,6 +99,12 @@ func TestMain(m *testing.M) {
 
 func TestRequestToParams(t *testing.T) {
 
+	var x TestApiBody
+	r := http.Request{}
+	if e := RequestToParams(&r, &x); e != nil {
+		t.Fatalf("error")
+	}
+
 	td := TestApiBody{
 		Int:  -1,
 		Str:  "test",
@@ -203,7 +209,10 @@ func TestJSONResponse(t *testing.T) {
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/err"
+		if r.URL.Path == "/err" {
+			JSONResponse(w, nil)
+			return
+		}
 
 		var req TestApiBody
 		if err := RequestToParams(r, &req); err != nil {
@@ -279,6 +288,34 @@ func TestJSONResponse(t *testing.T) {
 		}
 	}
 
+	req2, err := http.NewRequest(
+		"GET",
+		fmt.Sprintf("%s/err", ts.URL),
+		nil,
+	)
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+
+	resp2, err := client.Do(req2)
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+
+	if resp2.StatusCode != 200 {
+		t.Fatalf("error")
+	}
+
+	rb, err := ioutil.ReadAll(resp2.Body)
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+	defer resp2.Body.Close()
+
+	rs := string(rb)
+	if 0 < len(rs) {
+		t.Fatalf("%d: %s %+v", len(rs), rs, rb)
+	}
 }
 
 func TestBadRequest(t *testing.T) {
