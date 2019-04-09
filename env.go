@@ -60,7 +60,7 @@ func GetProjectID() string {
 
 // GetNodeENV は
 func GetNodeENV() string {
-	return os.Getenv("GOOGLE_CLOUD_PROJECT")
+	return os.Getenv("NODE_ENV")
 }
 
 // GetPort は待ち受けているポートを返します。
