@@ -27,6 +27,14 @@ func OK(w http.ResponseWriter) {
 	w.WriteHeader(200)
 }
 
+// TextResponse は、200 OKで指定テキストを返します。
+func TextResponse(w http.ResponseWriter, text string) {
+	w.Header().Set("Content-Type", "text/plain")
+	if _, err := w.Write([]byte(text)); err != nil {
+		InternalServerError(w, err)
+	}
+}
+
 // JSONResponse は、200 OKで JSON オブジェクトを返します。エンコードに失敗したら 500 エラーを返します。
 func JSONResponse(w http.ResponseWriter, data interface{}) {
 	if data == nil {
@@ -41,7 +49,9 @@ func JSONResponse(w http.ResponseWriter, data interface{}) {
 
 	// レスポンスを返す
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(j)
+	if _, err := w.Write(j); err != nil {
+		InternalServerError(w, err)
+	}
 }
 
 // エラーを返す

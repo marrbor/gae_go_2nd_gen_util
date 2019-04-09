@@ -213,6 +213,77 @@ func TestOK(t *testing.T) {
 	}
 }
 
+func TestTextResponse(t *testing.T) {
+	TextMessage := "test ok"
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/err" {
+			TextResponse(w, "")
+			return
+		}
+		TextResponse(w, TextMessage)
+	}))
+	defer ts.Close()
+
+	// リクエストする
+	req, err := http.NewRequest(
+		"GET",
+		ts.URL,
+		nil,
+	)
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		t.Fatalf("error.")
+	}
+
+	if resp.Status != "200 OK" {
+		t.Fatalf("error.(%s)", resp.Status)
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("error.(%s)", err)
+	}
+
+	if string(b) != TextMessage {
+		t.Fatalf("error")
+	}
+
+	// リクエストする
+	req2, err := http.NewRequest(
+		"GET",
+		fmt.Sprintf("%s/err", ts.URL),
+		nil,
+	)
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+
+	resp2, err := client.Do(req2)
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+	defer resp2.Body.Close()
+
+	if resp2.StatusCode != 500 {
+		t.Fatalf("error.(%d)", resp2.StatusCode)
+	}
+
+	if resp2.Status != "500 Internal Server Error" {
+		t.Fatalf("error.(%s)", resp2.Status)
+	}
+}
+
 func TestJSONResponse(t *testing.T) {
 
 	td := TestApiBody{
