@@ -9,7 +9,6 @@ package gae_go_2nd_gen_util
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -17,13 +16,8 @@ import (
 
 // RequestToParams は、request にあるボディー（JSON）を params でポインタ渡しされた go struct に変換します。
 func RequestToParams(r *http.Request, params interface{}) error {
-	b, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return err
-	}
 	defer r.Body.Close()
-
-	return json.Unmarshal(b, &params)
+	return json.NewDecoder(r.Body).Decode(&params)
 }
 
 // Response
@@ -33,7 +27,7 @@ func OK(w http.ResponseWriter) {
 	w.WriteHeader(200)
 }
 
-// JSONResponse は、200 OKで JSON オブジェクトを返します。
+// JSONResponse は、200 OKで JSON オブジェクトを返します。エンコードに失敗したら 500 エラーを返します。
 func JSONResponse(w http.ResponseWriter, data interface{}) {
 	if data == nil {
 		OK(w)
