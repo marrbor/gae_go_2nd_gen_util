@@ -10,6 +10,7 @@ package gae_go_2nd_gen_util
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -97,11 +98,24 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+type errReader int
+
+var ErrorStr = "test error"
+
+func (errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New(ErrorStr)
+}
+
 func TestRequestToParams(t *testing.T) {
 
 	var x TestApiBody
-	r := http.Request{}
-	if e := RequestToParams(&r, &x); e != nil {
+	r := httptest.NewRequest(http.MethodPost, "/test", errReader(0))
+	e := RequestToParams(r, &x)
+	if e == nil {
+		t.Fatalf("error")
+	}
+
+	if e.Error() != ErrorStr {
 		t.Fatalf("error")
 	}
 
@@ -210,7 +224,14 @@ func TestJSONResponse(t *testing.T) {
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/err" {
+			// nil
 			JSONResponse(w, nil)
+			return
+		}
+
+		if r.URL.Path == "/err2" {
+			// JSON化できないデータ
+			JSONResponse(w, map[string]interface{}{"foo": make(chan int)})
 			return
 		}
 
@@ -258,13 +279,8 @@ func TestJSONResponse(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatalf("%+v", err)
-	}
-
 	var receive TestApiBody
-	if err := json.Unmarshal(b, &receive); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&receive); err != nil {
 		t.Fatalf("%+v", err)
 	}
 
@@ -315,6 +331,28 @@ func TestJSONResponse(t *testing.T) {
 	rs := string(rb)
 	if 0 < len(rs) {
 		t.Fatalf("%d: %s %+v", len(rs), rs, rb)
+	}
+
+	req3, err := http.NewRequest(
+		"GET",
+		fmt.Sprintf("%s/err2", ts.URL),
+		nil,
+	)
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+
+	resp3, err := client.Do(req3)
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+
+	if resp3.StatusCode != 500 {
+		t.Fatalf("error")
+	}
+
+	if resp3.Status != "500 Internal Server Error" {
+		t.Fatalf("error(%s)", resp3.Status)
 	}
 }
 
