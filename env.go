@@ -6,7 +6,7 @@
  * https://cloud.google.com/appengine/docs/standard/go111/runtime
  *
  */
-package gae_go_2nd_gen_util
+package util
 
 import (
 	"os"

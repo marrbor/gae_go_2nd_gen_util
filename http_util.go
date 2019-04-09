@@ -5,7 +5,7 @@
  * Web API を構築するためのユーティリティ
  *
  */
-package gae_go_2nd_gen_util
+package util
 
 import (
 	"encoding/json"

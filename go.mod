@@ -1,1 +1,1 @@
-module github.com/marrbor/gae_go_2nd_gen_util
+module github.com/marrbor/gaego-util-gen2

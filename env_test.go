@@ -5,7 +5,7 @@
  * ファイルの説明
  *
  */
-package gae_go_2nd_gen_util
+package util
 
 import (
 	"os"
