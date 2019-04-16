@@ -275,6 +275,7 @@ func TestTextResponse(t *testing.T) {
 	}
 	defer resp2.Body.Close()
 
+	// TODO simulate write error
 	if resp2.StatusCode != 500 {
 		t.Fatalf("error.(%d)", resp2.StatusCode)
 	}
