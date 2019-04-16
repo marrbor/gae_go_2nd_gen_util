@@ -3,7 +3,7 @@
  * -*- coding:utf-8 -*-
  *
  * GAE/Go 環境変数に関するユーティリティ
- * https://cloud.google.com/appengine/docs/standard/go111/runtime
+ * https://cloud.google.com/appengine/docs/standard/go112/runtime
  *
  */
 package util
