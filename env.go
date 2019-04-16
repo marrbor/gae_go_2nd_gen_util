@@ -64,6 +64,10 @@ func GetNodeENV() string {
 }
 
 // GetPort は待ち受けているポートを返します。
-func GetPort() (int64, error) {
-	return strconv.ParseInt(os.Getenv("PORT"), 10, 64)
+func GetPort() (int, error) {
+	port, err := strconv.ParseInt(os.Getenv("PORT"), 10, 16)
+	if err != nil {
+		return 0, err
+	}
+	return int(port), nil
 }
