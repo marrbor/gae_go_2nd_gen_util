@@ -17,6 +17,9 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type (
@@ -450,4 +453,62 @@ func TestMethodNotAllowed(t *testing.T) {
 
 func TestInternalServerError(t *testing.T) {
 	testErrors(t, 500, "Internal Server Error", InternalServerError)
+}
+
+func TestStartServer(t *testing.T) {
+	err := os.Setenv("PORT", "8765")
+	assert.NoError(t, err, "unexpected: %+v", err)
+
+	go func() {
+		err := StartServer(9999, nil)
+		assert.NoError(t, err, "unexpected: %+v", err)
+	}()
+
+	// TODO port が 8765?
+	time.Sleep(10 * time.Second)
+}
+
+func TestStartServer2(t *testing.T) {
+	err := os.Setenv("PORT", "")
+	assert.NoError(t, err, "unexpected: %+v", err)
+
+	go func() {
+		err := StartServer(9999, nil)
+		assert.NoError(t,err,"unexpected: %+v", err)
+	}()
+
+	// TODO port が 9999?
+
+	time.Sleep(10 * time.Second)
+}
+
+func TestStartServer3(t *testing.T) {
+	err := os.Setenv("PORT", "")
+	assert.NoError(t, err, "unexpected: %+v", err)
+
+	go func() {
+		err := StartServer(65535, nil)
+		assert.NoError(t, err, "unexpected: %+v",err)
+	}()
+
+	// TODO port が 65535?
+
+	time.Sleep(10 * time.Second)
+}
+
+func TestStartServer4(t *testing.T) {
+	err := os.Setenv("PORT", "")
+	assert.NoError(t, err, "unexpected: %+v", err)
+
+	err = StartServer(65536, nil)
+	assert.EqualError(t,err,"listen tcp: address 65536: invalid port")
+}
+
+func TestStartServer5(t *testing.T) {
+	err := os.Setenv("PORT", "abc")
+	assert.NoError(t, err, "unexpected: %+v", err)
+
+
+	err = StartServer(65536, nil)
+	assert.EqualError(t,err,"strconv.ParseInt: parsing \"abc\": invalid syntax")
 }

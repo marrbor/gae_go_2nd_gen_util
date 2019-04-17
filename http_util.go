@@ -9,7 +9,9 @@ package util
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
 )
 
 // Request
@@ -91,4 +93,19 @@ func MethodNotAllowed(w http.ResponseWriter, err error) {
 // InternalServerError は、500エラーを返します。
 func InternalServerError(w http.ResponseWriter, err error) {
 	errResponse(w, http.StatusInternalServerError, err)
+}
+
+// StartServer は環境変数「PORT」の指定または指定されたポート番号で待受を開始し、ポート番号を返します。
+func StartServer(port int32, handler http.Handler) error {
+	portStr := GetPort()
+	if portStr == "" {
+		portStr = fmt.Sprintf("%d", port)
+	}
+
+	// ポート番号チェック
+	if _, err := strconv.ParseInt(portStr, 10, 32); err != nil {
+		return err
+	}
+
+	return http.ListenAndServe(fmt.Sprintf(":%s", portStr), handler)
 }
