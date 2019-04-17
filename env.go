@@ -10,7 +10,6 @@ package util
 
 import (
 	"os"
-	"strconv"
 )
 
 // GetAppID は、アプリケーション ID を返します。
@@ -64,10 +63,6 @@ func GetNodeENV() string {
 }
 
 // GetPort は待ち受けているポートを返します。
-func GetPort() (int, error) {
-	port, err := strconv.ParseInt(os.Getenv("PORT"), 10, 16)
-	if err != nil {
-		return 0, err
-	}
-	return int(port), nil
+func GetPort() string {
+	return os.Getenv("PORT")
 }

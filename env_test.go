@@ -77,13 +77,12 @@ func TestGetNodeENV(t *testing.T) {
 func TestGetPort(t *testing.T) {
 	err := os.Setenv("PORT", "100")
 	assert.NoError(t, err, "unexpected %+v", err)
+	port := GetPort()
+	assert.Equal(t, "100", port)
 
-	port, err := GetPort()
-	assert.NoError(t, err, "unexpected %+v", err)
-	assert.Equal(t, 100, port)
 	err = os.Setenv("PORT", "abc")
 	assert.NoError(t, err, "unexpected %+v", err)
 
-	_, err = GetPort()
-	assert.EqualError(t, err, "strconv.ParseInt: parsing \"abc\": invalid syntax")
+	port = GetPort()
+	assert.Equal(t, "abc", port)
 }
